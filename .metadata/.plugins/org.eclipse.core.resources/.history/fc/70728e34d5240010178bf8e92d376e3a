@@ -1,0 +1,71 @@
+package com.example.dto;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+
+public class StaffDTOTest {
+
+    @Test
+    void testNoArgsConstructor() {
+        // Act
+        StaffDTO dto = new StaffDTO();
+        
+        // Assert
+        assertNotNull(dto, "DTO should not be null");
+    }
+    
+    @Test
+    void testAllArgsConstructor() {
+        // Arrange
+        Long id = 1L;
+        String name = "John Doe";
+        String role = "MANAGER";
+        boolean onDuty = true;
+        
+        // Act
+        StaffDTO dto = new StaffDTO(id, name, role, onDuty);
+        
+        // Assert
+        assertEquals(id, dto.getId(), "ID should match");
+        assertEquals(name, dto.getName(), "Name should match");
+        assertEquals(role, dto.getRole(), "Role should match");
+        assertEquals(onDuty, dto.isOnDuty(), "OnDuty status should match");
+    }
+    
+    @Test
+    void testGettersAndSetters() {
+        // Arrange
+        StaffDTO dto = new StaffDTO();
+        Long id = 2L;
+        String name = "Jane Smith";
+        String role = "STAFF";
+        boolean onDuty = true;
+        
+        // Act
+        dto.setId(id);
+        dto.setName(name);
+        dto.setRole(role);
+        dto.setOnDuty(onDuty);
+        
+        // Assert
+        assertEquals(id, dto.getId(), "ID should match");
+        assertEquals(name, dto.getName(), "Name should match");
+        assertEquals(role, dto.getRole(), "Role should match");
+        assertTrue(dto.isOnDuty(), "OnDuty status should be true");
+    }
+    
+    @Test
+    void testLombokGeneratedMethods() {
+        // Arrange
+        StaffDTO dto1 = new StaffDTO(1L, "John Doe", "MANAGER", true);
+        StaffDTO dto2 = new StaffDTO(1L, "John Doe", "MANAGER", true);
+        
+        // Assert
+        assertEquals(dto1, dto2, "DTOs with same values should be equal");
+        assertEquals(dto1.hashCode(), dto2.hashCode(), "Hash codes should match");
+        assertNotNull(dto1.toString(), "toString should not return null");
+    }
+} 

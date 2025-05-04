@@ -1,0 +1,70 @@
+package com.example.dto;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.Test;
+
+public class InventoryItemDTOTest {
+
+    @Test
+    void testNoArgsConstructor() {
+        // Act
+        InventoryItemDTO dto = new InventoryItemDTO();
+        
+        // Assert
+        assertNotNull(dto, "DTO should not be null");
+    }
+    
+    @Test
+    void testAllArgsConstructor() {
+        // Arrange
+        Long id = 1L;
+        String name = "Towels";
+        int quantity = 10;
+        String category = "Bathroom";
+        
+        // Act
+        InventoryItemDTO dto = new InventoryItemDTO(id, name, quantity, category);
+        
+        // Assert
+        assertEquals(id, dto.getId(), "ID should match");
+        assertEquals(name, dto.getName(), "Name should match");
+        assertEquals(quantity, dto.getQuantity(), "Quantity should match");
+        assertEquals(category, dto.getCategory(), "Category should match");
+    }
+    
+    @Test
+    void testGettersAndSetters() {
+        // Arrange
+        InventoryItemDTO dto = new InventoryItemDTO();
+        Long id = 2L;
+        String name = "Pillows";
+        int quantity = 5;
+        String category = "Bedroom";
+        
+        // Act
+        dto.setId(id);
+        dto.setName(name);
+        dto.setQuantity(quantity);
+        dto.setCategory(category);
+        
+        // Assert
+        assertEquals(id, dto.getId(), "ID should match");
+        assertEquals(name, dto.getName(), "Name should match");
+        assertEquals(quantity, dto.getQuantity(), "Quantity should match");
+        assertEquals(category, dto.getCategory(), "Category should match");
+    }
+    
+    @Test
+    void testLombokGeneratedMethods() {
+        // Arrange
+        InventoryItemDTO dto1 = new InventoryItemDTO(1L, "Towels", 10, "Bathroom");
+        InventoryItemDTO dto2 = new InventoryItemDTO(1L, "Towels", 10, "Bathroom");
+        
+        // Assert
+        assertEquals(dto1, dto2, "DTOs with same values should be equal");
+        assertEquals(dto1.hashCode(), dto2.hashCode(), "Hash codes should match");
+        assertNotNull(dto1.toString(), "toString should not return null");
+    }
+} 

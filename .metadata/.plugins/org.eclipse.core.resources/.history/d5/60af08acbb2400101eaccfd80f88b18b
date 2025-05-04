@@ -1,0 +1,131 @@
+package com.controller;
+
+
+
+import com.dto.LoginRequest;
+import com.dto.RegisterRequest;
+import com.dto.UserResponse;
+import com.model.User;
+import com.repository.UserRepository;
+import com.service.AuthService;
+import com.util.JwtUtil;
+
+import lombok.RequiredArgsConstructor;
+
+import java.security.Provider.Service;
+import java.util.List;
+import java.util.Map;
+
+import javax.naming.AuthenticationException;
+
+import org.apache.hc.core5.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/auth")
+
+public class AuthController {
+	
+	private final UserRepository userRepository;
+    private final AuthService authService;
+    private final JwtUtil jwtUtil;
+	
+	public AuthController(UserRepository userRepository, AuthService authService, JwtUtil jwtUtil) {
+        this.userRepository = userRepository;
+        this.authService = authService;
+        this.jwtUtil = jwtUtil;
+    }
+	
+	
+
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
+        return ResponseEntity.ok(authService.register(request));
+    }
+    @PreAuthorize("hasRole('OWNER')")
+    @GetMapping("/users")
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll()
+            .stream()
+            .map(n -> new UserResponse(
+                n.getId(),
+                n.getEmail (),
+                n.getRole()
+            ))
+            .toList();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        String token = authService.login(request);
+		return ResponseEntity.ok(Map.of("token", token));
+    }
+    
+    // New endpoint to validate token
+    @PostMapping("/validate")
+    public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.SC_BAD_REQUEST)
+                .body(Map.of("error", "Missing or invalid Authorization header"));
+        }
+
+        String token = authHeader.substring(7); // Remove "Bearer "
+        try {
+            String username = jwtUtil.extractUsername(token);
+            if (jwtUtil.isTokenExpired(token)) {
+                return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED)
+                    .body(Map.of("error", "Token has expired"));
+            }
+            // Optionally, load user details to validate against
+            User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+            Map<String, Object> response = Map.of(
+                "valid", true,
+                "email", username,
+                "roles", user.getAuthorities().stream().map(Object::toString).toList()
+            );
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED)
+                .body(Map.of("error", "Invalid token", "message", e.getMessage()));
+        }
+        
+    }
+        // Update 
+        @PreAuthorize("hasRole('OWNER')")
+        @PutMapping("/users/{id}")
+        public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody RegisterRequest request) {
+            User user = authService.updateUser(id, request);
+            return ResponseEntity.ok(new UserResponse(user.getId(), user.getEmail(), user.getRole()));
+        }
+        
+        // Get by Id
+        @PreAuthorize("hasRole('OWNER')")
+        @GetMapping("/usersbyid/{id}")
+        public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+            User user = authService.getUserById(id);
+            return ResponseEntity.ok(new UserResponse(user.getId(), user.getEmail(), user.getRole()));
+        }
+         
+        // Delete By Id
+        @PreAuthorize("hasRole('OWNER')")
+        @DeleteMapping("/users/{id}")
+        public ResponseEntity<String> deleteUserById(@PathVariable Long id) {
+            authService.deleteUserById(id);
+            return ResponseEntity.ok("User deleted successfully");
+        }
+        
+        // Delete All
+        @PreAuthorize("hasRole('OWNER')")
+        @DeleteMapping("/users")
+        public ResponseEntity<String> deleteAllUsers() {
+            authService.deleteAllUsers();
+            return ResponseEntity.ok("All users deleted successfully");
+        }
+    
+
+}

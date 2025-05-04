@@ -1,0 +1,84 @@
+package com.example.Model;
+
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class PaymentTest {
+
+    @Test
+    void testCreatePayment() {
+        // Arrange
+        Long id = 1L;
+        Long reservationId = 100L;
+        String guestName = "John Doe";
+        double amount = 150.0;
+        String status = "SUCCESS";
+        String processedBy = "RECEPTIONIST test@example.com";
+        
+        // Act
+        Payment payment = new Payment(id, reservationId, guestName, amount, status, processedBy);
+        
+        // Assert
+        assertEquals(id, payment.getId());
+        assertEquals(reservationId, payment.getReservationId());
+        assertEquals(guestName, payment.getGuestName());
+        assertEquals(amount, payment.getAmount());
+        assertEquals(status, payment.getStatus());
+        assertEquals(processedBy, payment.getProcessedBy());
+    }
+    
+    @Test
+    void testDefaultConstructorAndSetters() {
+        // Arrange
+        Payment payment = new Payment();
+        Long id = 1L;
+        Long reservationId = 100L;
+        String guestName = "Jane Smith";
+        double amount = 200.0;
+        String status = "SUCCESS";
+        String processedBy = "MANAGER manager@example.com";
+        
+        // Act
+        payment.setId(id);
+        payment.setReservationId(reservationId);
+        payment.setGuestName(guestName);
+        payment.setAmount(amount);
+        payment.setStatus(status);
+        payment.setProcessedBy(processedBy);
+        
+        // Assert
+        assertEquals(id, payment.getId());
+        assertEquals(reservationId, payment.getReservationId());
+        assertEquals(guestName, payment.getGuestName());
+        assertEquals(amount, payment.getAmount());
+        assertEquals(status, payment.getStatus());
+        assertEquals(processedBy, payment.getProcessedBy());
+    }
+    
+    @Test
+    void testEqualsAndHashCode() {
+        // This test is mainly to demonstrate how to test the Lombok @Data functionality
+        // which generates equals, hashCode, and toString methods
+        
+        // Arrange
+        Payment payment1 = new Payment();
+        payment1.setId(1L);
+        payment1.setReservationId(100L);
+        
+        Payment payment2 = new Payment();
+        payment2.setId(1L);
+        payment2.setReservationId(100L);
+        
+        Payment payment3 = new Payment();
+        payment3.setId(2L);
+        payment3.setReservationId(100L);
+        
+        // Act & Assert for equals
+        assertEquals(payment1, payment2, "Equal payments should be equal");
+        assertNotEquals(payment1, payment3, "Different payments should not be equal");
+        
+        // Act & Assert for hashCode
+        assertEquals(payment1.hashCode(), payment2.hashCode(), "Equal payments should have same hashCode");
+        assertNotEquals(payment1.hashCode(), payment3.hashCode(), "Different payments should have different hashCode");
+    }
+} 

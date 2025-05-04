@@ -1,0 +1,84 @@
+package com.example.util;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.security.Key;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class JwtUtilTest {
+
+    private JwtUtil jwtUtil;
+    private String validToken;
+    private String invalidToken;
+    private String expiredToken;
+
+    @BeforeEach
+    void setUp() {
+        jwtUtil = new JwtUtil();
+        
+        // Create valid token with roles claim
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", "ROLE_MANAGER");
+        validToken = createToken(claims, "test@example.com", 3600000); // 1 hour validity
+        
+        // Create token with invalid signature
+        invalidToken = validToken + "invalid";
+        
+        // Create expired token
+        expiredToken = createToken(claims, "test@example.com", -3600000); // expired 1 hour ago
+    }
+
+    @Test
+    void validateToken_WithValidToken_ShouldNotThrowException() {
+        // Act & Assert
+        assertDoesNotThrow(() -> jwtUtil.validateToken(validToken));
+    }
+
+    @Test
+    void validateToken_WithInvalidToken_ShouldThrowException() {
+        // Act & Assert
+        assertThrows(Exception.class, () -> jwtUtil.validateToken(invalidToken));
+    }
+
+    @Test
+    void validateToken_WithExpiredToken_ShouldThrowException() {
+        // Act & Assert
+        assertThrows(Exception.class, () -> jwtUtil.validateToken(expiredToken));
+    }
+
+   
+
+    @Test
+    void getEmailFromToken_ShouldReturnEmail() {
+        // Act
+        String email = jwtUtil.getEmailFromToken(validToken);
+        
+        // Assert
+        assertEquals("test@example.com", email);
+    }
+
+    private String createToken(Map<String, Object> claims, String subject, long validityDuration) {
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + validityDuration))
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    private Key getSignKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(JwtUtil.SECRET);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+} 

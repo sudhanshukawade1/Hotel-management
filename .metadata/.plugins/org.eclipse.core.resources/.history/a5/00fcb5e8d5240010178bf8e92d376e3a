@@ -1,0 +1,86 @@
+package com.dto;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.time.LocalDate;
+
+import org.junit.jupiter.api.Test;
+
+public class BookingDTOTest {
+
+    @Test
+    void testNoArgsConstructor() {
+        // Act
+        BookingDTO dto = new BookingDTO();
+        
+        // Assert
+        assertNotNull(dto, "DTO should not be null");
+    }
+    
+    @Test
+    void testAllArgsConstructor() {
+        // Arrange
+        Long id = 1L;
+        Long guestId = 101L;
+        String guestName = "John Doe";
+        Long roomId = 201L;
+        String roomNumber = "101";
+        LocalDate checkInDate = LocalDate.of(2023, 10, 15);
+        LocalDate checkOutDate = LocalDate.of(2023, 10, 20);
+        Double totalPrice = 500.0;
+        String status = "CONFIRMED";
+        
+        // Act
+        BookingDTO dto = new BookingDTO(id, guestId, guestName, roomId, roomNumber, 
+                                      checkInDate, checkOutDate, totalPrice, status);
+        
+        // Assert
+        assertEquals(id, dto.getId(), "ID should match");
+        assertEquals(guestId, dto.getGuestId(), "Guest ID should match");
+        assertEquals(guestName, dto.getGuestName(), "Guest name should match");
+        assertEquals(roomId, dto.getRoomId(), "Room ID should match");
+        assertEquals(roomNumber, dto.getRoomNumber(), "Room number should match");
+        assertEquals(checkInDate, dto.getCheckInDate(), "Check-in date should match");
+        assertEquals(checkOutDate, dto.getCheckOutDate(), "Check-out date should match");
+        assertEquals(totalPrice, dto.getTotalPrice(), "Total price should match");
+        assertEquals(status, dto.getStatus(), "Status should match");
+    }
+    
+    @Test
+    void testGettersAndSetters() {
+        // Arrange
+        BookingDTO dto = new BookingDTO();
+        Long id = 2L;
+        Long guestId = 102L;
+        String guestName = "Jane Smith";
+        Long roomId = 202L;
+        String roomNumber = "102";
+        LocalDate checkInDate = LocalDate.of(2023, 11, 15);
+        LocalDate checkOutDate = LocalDate.of(2023, 11, 20);
+        Double totalPrice = 600.0;
+        String status = "PENDING";
+        
+        // Act
+        dto.setId(id);
+        dto.setGuestId(guestId);
+        dto.setGuestName(guestName);
+        dto.setRoomId(roomId);
+        dto.setRoomNumber(roomNumber);
+        dto.setCheckInDate(checkInDate);
+        dto.setCheckOutDate(checkOutDate);
+        dto.setTotalPrice(totalPrice);
+        dto.setStatus(status);
+        
+        // Assert
+        assertEquals(id, dto.getId(), "ID should match");
+        assertEquals(guestId, dto.getGuestId(), "Guest ID should match");
+        assertEquals(guestName, dto.getGuestName(), "Guest name should match");
+        assertEquals(roomId, dto.getRoomId(), "Room ID should match");
+        assertEquals(roomNumber, dto.getRoomNumber(), "Room number should match");
+        assertEquals(checkInDate, dto.getCheckInDate(), "Check-in date should match");
+        assertEquals(checkOutDate, dto.getCheckOutDate(), "Check-out date should match");
+        assertEquals(totalPrice, dto.getTotalPrice(), "Total price should match");
+        assertEquals(status, dto.getStatus(), "Status should match");
+    }
+} 

@@ -1,0 +1,123 @@
+package com.example.Service;
+
+import com.example.Model.Payment;
+import com.example.Repository.PaymentRepository;
+import com.example.client.ReservationClient;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class PaymentServiceTest {
+
+    @Mock
+    private ReservationClient reservationClient;
+
+    @Mock
+    private PaymentRepository paymentRepository;
+
+    @InjectMocks
+    private PaymentService paymentService;
+
+    private Map<String, Object> reservationDetails;
+    private Payment payment;
+    private final Long RESERVATION_ID = 1L;
+    private final String ROLE = "RECEPTIONIST";
+    private final String EMAIL = "test@example.com";
+    private final String AUTH_HEADER = "Bearer token";
+
+    @BeforeEach
+    void setUp() {
+        // Setup reservation details
+        reservationDetails = new HashMap<>();
+        reservationDetails.put("guestName", "John Doe");
+        reservationDetails.put("Price", 150.0);
+
+        // Setup payment
+        payment = new Payment();
+        payment.setId(1L);
+        payment.setReservationId(RESERVATION_ID);
+        payment.setGuestName("John Doe");
+        payment.setAmount(150.0);
+        payment.setStatus("SUCCESS");
+        payment.setProcessedBy(ROLE + " " + EMAIL);
+    }
+
+    @Test
+    void processPayment_Success() {
+        // Arrange
+        when(reservationClient.getReservationDetails(RESERVATION_ID, AUTH_HEADER, ROLE, EMAIL))
+                .thenReturn(reservationDetails);
+        when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
+
+        // Act
+        Payment result = paymentService.processPayment(RESERVATION_ID, ROLE, EMAIL, AUTH_HEADER);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(RESERVATION_ID, result.getReservationId());
+        assertEquals("John Doe", result.getGuestName());
+        assertEquals(150.0, result.getAmount());
+        assertEquals("SUCCESS", result.getStatus());
+        assertEquals(ROLE + " " + EMAIL, result.getProcessedBy());
+
+        verify(reservationClient).getReservationDetails(RESERVATION_ID, AUTH_HEADER, ROLE, EMAIL);
+        verify(paymentRepository).save(any(Payment.class));
+    }
+
+    @Test
+    void processPayment_ReservationClientThrowsException() {
+        // Arrange
+        when(reservationClient.getReservationDetails(RESERVATION_ID, AUTH_HEADER, ROLE, EMAIL))
+                .thenThrow(new RuntimeException("Service unavailable"));
+
+        // Act & Assert
+        Exception exception = assertThrows(RuntimeException.class, () ->
+                paymentService.processPayment(RESERVATION_ID, ROLE, EMAIL, AUTH_HEADER));
+
+        assertTrue(exception.getMessage().contains("Failed to fetch reservation details"));
+        verify(reservationClient).getReservationDetails(RESERVATION_ID, AUTH_HEADER, ROLE, EMAIL);
+        verify(paymentRepository, never()).save(any(Payment.class));
+    }
+
+    @Test
+    void processPayment_ReservationDetailsNull() {
+        // Arrange
+        when(reservationClient.getReservationDetails(RESERVATION_ID, AUTH_HEADER, ROLE, EMAIL))
+                .thenReturn(null);
+
+        // Act & Assert
+        Exception exception = assertThrows(RuntimeException.class, () ->
+                paymentService.processPayment(RESERVATION_ID, ROLE, EMAIL, AUTH_HEADER));
+
+        assertEquals("Invalid response from reservation service", exception.getMessage());
+        verify(reservationClient).getReservationDetails(RESERVATION_ID, AUTH_HEADER, ROLE, EMAIL);
+        verify(paymentRepository, never()).save(any(Payment.class));
+    }
+
+    @Test
+    void processPayment_InvalidPriceFormat() {
+        // Arrange
+        reservationDetails.put("Price", "not-a-number");
+        when(reservationClient.getReservationDetails(RESERVATION_ID, AUTH_HEADER, ROLE, EMAIL))
+                .thenReturn(reservationDetails);
+
+        // Act & Assert
+        Exception exception = assertThrows(RuntimeException.class, () ->
+                paymentService.processPayment(RESERVATION_ID, ROLE, EMAIL, AUTH_HEADER));
+
+        assertEquals("Invalid Price format from reservation service", exception.getMessage());
+        verify(reservationClient).getReservationDetails(RESERVATION_ID, AUTH_HEADER, ROLE, EMAIL);
+        verify(paymentRepository, never()).save(any(Payment.class));
+    }
+} 

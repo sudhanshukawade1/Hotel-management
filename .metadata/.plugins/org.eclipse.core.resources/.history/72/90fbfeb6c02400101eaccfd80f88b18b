@@ -1,0 +1,109 @@
+package com.service;
+
+import com.dto.LoginRequest;
+import com.dto.RegisterRequest;
+import com.model.User;
+import com.repository.UserRepository;
+import com.util.JwtUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
+public class AuthService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                       AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
+    }
+
+    public String register(RegisterRequest request) {
+        logger.info("Starting user registration for email: {}", request.getEmail());
+        User user = User.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(request.getRole())
+                .build();
+        userRepository.save(user);
+        logger.info("User registration completed successfully for email: {}", request.getEmail());
+        return "User registered successfully";
+    }
+
+    public String login(LoginRequest request) {
+        logger.info("Starting login process for user: {}", request.getEmail());
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
+            logger.debug("Authentication successful for user: {}", request.getEmail());
+        } catch (BadCredentialsException e) {
+            logger.warn("Authentication failed for user: {}", request.getEmail());
+            throw new BadCredentialsException("Invalid email or password");
+        }
+        UserDetails userDetails = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> {
+                    logger.error("User not found after successful authentication: {}", request.getEmail());
+                    return new RuntimeException("User not found");
+                });
+        String token = jwtUtil.generateToken(userDetails);
+        logger.info("JWT token generated successfully for user: {}", request.getEmail());
+        return token;
+    }
+    
+    public User updateUser(Long id, RegisterRequest request) {
+        logger.info("Starting user update for ID: {}", id);
+        User user = userRepository.findById(id).orElseThrow(() -> {
+            logger.error("User not found for update, ID: {}", id);
+            return new RuntimeException("User not found");
+        });
+        
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            logger.debug("Updating password for user: {}", user.getEmail());
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        user.setRole(request.getRole());
+        User updatedUser = userRepository.save(user);
+        logger.info("User updated successfully: {}", updatedUser.getEmail());
+        return updatedUser;
+    }
+    
+    public User getUserById(Long id) {
+        logger.info("Fetching user by ID: {}", id);
+        User user = userRepository.findById(id).orElseThrow(() -> {
+            logger.error("User not found, ID: {}", id);
+            return new RuntimeException("User not found");
+        });
+        logger.info("User retrieved successfully: {}", user.getEmail());
+        return user;
+    }
+    
+    public void deleteUserById(Long id) {
+        logger.info("Attempting to delete user with ID: {}", id);
+        if (!userRepository.existsById(id)) {
+            logger.error("User not found for deletion, ID: {}", id);
+            throw new RuntimeException("User not found");
+        }
+        userRepository.deleteById(id);
+        logger.info("User deleted successfully, ID: {}", id);
+    }
+    
+    public void deleteAllUsers() {
+        logger.warn("Starting deletion of all users");
+        userRepository.deleteAll();
+        logger.warn("All users deleted successfully");
+    }
+}

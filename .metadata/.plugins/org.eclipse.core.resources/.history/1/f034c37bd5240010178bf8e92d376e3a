@@ -1,0 +1,40 @@
+package com.example.validator;
+
+import com.example.filter.RouteValidator;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class RouteValidatorTest {
+
+    private RouteValidator routeValidator;
+
+    @BeforeEach
+    void setUp() {
+        routeValidator = new RouteValidator();
+    }
+
+    @Test
+    void shouldIdentifySecuredEndpoints() {
+        // Arrange & Act & Assert
+        assertTrue(routeValidator.isSecured.test(
+                MockServerHttpRequest.get("http://localhost:8080/reservation/create").build()));
+        assertTrue(routeValidator.isSecured.test(
+                MockServerHttpRequest.get("http://localhost:8080/inventory/items/add").build()));
+        assertTrue(routeValidator.isSecured.test(
+                MockServerHttpRequest.get("http://localhost:8080/payment/process").build()));
+    }
+
+    @Test
+    void shouldIdentifyPublicEndpoints() {
+        // Arrange & Act & Assert
+        for (String endpoint : RouteValidator.openApiEndpoints) {
+            assertFalse(routeValidator.isSecured.test(
+                    MockServerHttpRequest.get("http://localhost:8080" + endpoint).build()),
+                    "Endpoint " + endpoint + " should be public");
+        }
+    }
+} 
