@@ -68,7 +68,7 @@ This system manages hotel operations using a microservices architecture.
   - `POST /auth/register` – Register a new user  
   - `POST /auth/login` – Authenticate and receive JWT  
   - `GET /auth/me` – Get current user info  
-- **DB Tables**: `users`, `roles`, `user_roles`
+- **DB Tables**: `users`
 - **Environment Variables**:  
   - `DB_URL`, `DB_USER`, `DB_PASS`  
   - `JWT_SECRET`, `JWT_EXPIRATION`
@@ -79,7 +79,7 @@ This system manages hotel operations using a microservices architecture.
   - `GET /rooms` – List rooms  
   - `POST /reservations` – Book a room  
   - `GET /reservations/{id}` – Get reservation details  
-- **DB Tables**: `rooms`, `reservations`, `guests`
+- **DB Tables**: `rooms`, `reservations`
 
 #### 3. **Inventory-service**
 - **Responsibilities**: Manage hotel inventory (supplies, amenities), staff management.
@@ -87,14 +87,14 @@ This system manages hotel operations using a microservices architecture.
   - `GET /items` – List inventory items  
   - `POST /items` – Add inventory item  
   - `GET /staff` – List staff  
-- **DB Tables**: `items`, `staff`
+- **DB Tables**: `inventory_item`, `staff`
 
 #### 4. **payment-service**
 - **Responsibilities**: Payment processing, transaction history.
 - **Endpoints**:  
   - `POST /payments` – Process payment  
   - `GET /transactions` – List transactions  
-- **DB Tables**: `payments`, `transactions`
+- **DB Tables**: `payment`
 
 #### 5. **gateway-service**
 - **Responsibilities**: API gateway, request routing, security enforcement.
