@@ -143,6 +143,11 @@ public class AuthService {
                 logger.error("User not found for update, ID: {}", id);
                 return new AppExceptions.UserNotFoundException("User not found");
             });
+            // Update email if provided and not empty
+            if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+                logger.debug("Updating email for user: {}", user.getEmail());
+                user.setEmail(request.getEmail());
+            }
             if (request.getPassword() != null && !request.getPassword().isEmpty()) {
                 logger.debug("Updating password for user: {}", user.getEmail());
                 user.setPassword(passwordEncoder.encode(request.getPassword()));

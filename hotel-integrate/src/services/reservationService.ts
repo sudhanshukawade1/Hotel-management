@@ -21,8 +21,11 @@ export interface Reservation {
 
 export interface ReservationDetails {
   guestName: string;
+  guestEmail: string;
   roomNumber: string;
   Price: number;
+  checkInDate: string;
+  checkOutDate: string;
 }
 
 export const fetchAvailableRooms = async (checkIn: string, checkOut: string): Promise<Room[]> => {

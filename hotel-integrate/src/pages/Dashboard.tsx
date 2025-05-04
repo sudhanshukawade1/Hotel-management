@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { colors, spacing } from '../styles';
-import {  getStaff } from '../services/inventoryService';
+import { getStaff } from '../services/inventoryService';
 import { getAllReservations, getAllRooms } from '../services/reservationService';
 
 const Dashboard: React.FC = () => {
@@ -45,194 +45,392 @@ const Dashboard: React.FC = () => {
       minHeight: '100vh',
       background: `linear-gradient(140deg, ${colors.background} 0%, ${colors.backgroundAlt} 100%)`,
       display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      flexDirection: 'column' as 'column',
       padding: spacing.md,
     },
-    card: {
-      width: '500px',
-      background: colors.white,
-      borderRadius: '1rem',
-      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.08)',
-      padding: spacing.xxl,
-    },
     header: {
-      textAlign: 'center' as 'center',
+      padding: spacing.md,
+      background: colors.white,
+      borderRadius: '0.75rem',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
       marginBottom: spacing.xl,
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    heading: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    logo: {
+      fontSize: '2rem',
+      marginRight: spacing.sm,
+      color: colors.primary,
     },
     title: {
-      color: colors.primary,
+      fontSize: '1.5rem',
       fontWeight: 700,
-      fontSize: '1.75rem',
+      color: colors.primary,
+      margin: 0,
+    },
+    userProfile: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+    userEmail: {
+      color: colors.textSecondary,
+      fontWeight: 500,
+    },
+    logoutBtn: {
+      display: 'flex',
+      alignItems: 'center',
+      padding: `${spacing.xs} ${spacing.sm}`,
+      background: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      gap: spacing.xs,
+      color: colors.textSecondary,
+      transition: 'all 0.3s ease',
+      borderRadius: '0.375rem',
+    },
+    welcomeSection: {
+      backgroundColor: colors.white,
+      borderRadius: '0.75rem',
+      padding: spacing.xl,
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+      marginBottom: spacing.xl,
+      textAlign: 'center' as 'center',
+      position: 'relative' as 'relative',
+      overflow: 'hidden',
+      borderTop: `4px solid ${colors.primary}`,
+    },
+    welcomeTitle: {
+      fontSize: '1.5rem',
+      fontWeight: 700,
+      color: colors.primary,
       marginBottom: spacing.md,
     },
     welcomeText: {
-      fontSize: '1.125rem',
+      fontSize: '1rem',
       color: colors.textSecondary,
-      marginBottom: spacing.xl,
-      fontWeight: 500,
+      marginBottom: 0,
     },
     highlight: {
       color: colors.primary,
       fontWeight: 600,
     },
-    buttonContainer: {
-      display: 'flex',
-      flexDirection: 'column' as 'column',
-      gap: spacing.md,
-    },
-    button: {
-      padding: `${spacing.md} ${spacing.lg}`,
-      background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
-      color: colors.white,
-      border: 'none',
-      borderRadius: '0.5rem',
-      fontSize: '0.875rem',
-      fontWeight: 600,
-      cursor: 'pointer',
-      transition: 'all 0.2s',
-      boxShadow: '0 4px 10px rgba(15, 23, 42, 0.2)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      gap: spacing.sm,
-    },
-    logoutButton: {
-      background: colors.white,
-      color: colors.primary,
-      border: `1px solid ${colors.primary}`,
-      boxShadow: 'none',
-      marginTop: spacing.md,
-    },
-    logo: {
-      fontSize: '2.5rem',
-      marginBottom: spacing.md,
-    },
     stats: {
-      display: 'flex',
-      justifyContent: 'space-around',
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+      gap: spacing.lg,
       marginBottom: spacing.xl,
     },
-    statItem: {
-      textAlign: 'center' as 'center',
+    statCard: {
+      backgroundColor: colors.white,
+      borderRadius: '0.75rem',
+      padding: spacing.lg,
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+      display: 'flex',
+      flexDirection: 'column' as 'column',
+      alignItems: 'center',
+      transition: 'all 0.3s ease',
+    },
+    statIcon: {
+      width: '48px',
+      height: '48px',
+      borderRadius: '50%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: spacing.sm,
+      color: colors.white,
+    },
+    roomIcon: {
+      background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+    },
+    staffIcon: {
+      background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
+    },
+    guestIcon: {
+      background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
     },
     statValue: {
-      fontSize: '2rem',
+      fontSize: '2.5rem',
       fontWeight: 700,
       color: colors.primary,
+      lineHeight: 1.2,
     },
     statLabel: {
       fontSize: '0.875rem',
       color: colors.textSecondary,
       fontWeight: 500,
-    }
+      textTransform: 'uppercase' as 'uppercase',
+      letterSpacing: '0.05em',
+    },
+    loadingPlaceholder: {
+      width: '60px',
+      height: '60px',
+      borderRadius: '0.5rem',
+      background: 'linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%)',
+      backgroundSize: '200% 100%',
+      animation: 'loading 1.5s infinite linear',
+    },
+    '@keyframes loading': {
+      '0%': { backgroundPosition: '200% 0' },
+      '100%': { backgroundPosition: '-200% 0' },
+    },
+    featuresGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+      gap: spacing.lg,
+    },
+    featureCard: {
+      backgroundColor: colors.white,
+      borderRadius: '0.75rem',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+      overflow: 'hidden',
+      transition: 'all 0.3s ease',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column' as 'column',
+      border: `1px solid ${colors.border}`,
+      transformOrigin: 'center bottom',
+    },
+    featureHeader: {
+      padding: spacing.md,
+      borderBottom: `1px solid ${colors.border}`,
+      background: colors.backgroundAlt,
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    featureTitle: {
+      margin: 0,
+      fontSize: '1rem',
+      fontWeight: 600,
+      color: colors.textPrimary,
+    },
+    featureIcon: {
+      width: '36px',
+      height: '36px',
+      borderRadius: '50%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'rgba(37, 99, 235, 0.1)',
+      color: colors.primary,
+    },
+    featureBody: {
+      padding: spacing.md,
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column' as 'column',
+      justifyContent: 'space-between',
+    },
+    featureDescription: {
+      color: colors.textSecondary,
+      fontSize: '0.875rem',
+      marginBottom: spacing.md,
+    },
+    featureButton: {
+      width: '100%',
+      padding: `${spacing.sm} ${spacing.md}`,
+      backgroundColor: colors.white,
+      color: colors.primary,
+      border: `1px solid ${colors.primary}`,
+      borderRadius: '0.5rem',
+      fontWeight: 600,
+      fontSize: '0.875rem',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+    },
   };
+
+  const features = [
+    {
+      title: 'Inventory',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+      ),
+      description: 'View and manage hotel inventory, check room availability and status.',
+      action: () => navigate('/inventory')
+    },
+    {
+      title: 'User Management',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      ),
+      description: 'Manage staff accounts, roles and permissions.',
+      action: () => navigate('/users')
+    },
+    {
+      title: 'Book Room',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+      ),
+      description: 'Book a new room for guests with personalized options.',
+      action: () => navigate('/book-room')
+    },
+    {
+      title: 'Reservations',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="8" y1="6" x2="21" y2="6"></line>
+          <line x1="8" y1="12" x2="21" y2="12"></line>
+          <line x1="8" y1="18" x2="21" y2="18"></line>
+          <line x1="3" y1="6" x2="3.01" y2="6"></line>
+          <line x1="3" y1="12" x2="3.01" y2="12"></line>
+          <line x1="3" y1="18" x2="3.01" y2="18"></line>
+        </svg>
+      ),
+      description: 'View and manage all current and upcoming reservations.',
+      action: () => navigate('/reservations')
+    },
+    {
+      title: 'Add Room',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      ),
+      description: 'Add new rooms to the hotel inventory with details and pricing.',
+      action: () => navigate('/add-room')
+    },
+    {
+      title: 'Make Payment',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+          <line x1="1" y1="10" x2="23" y2="10"></line>
+        </svg>
+      ),
+      description: 'Process payments for guest reservations and services.',
+      action: () => navigate('/make-payment')
+    },
+  ];
 
   return (
     <div style={styles.pageContainer}>
-      <div style={styles.card}>
-        <div style={styles.header}>
-          <div style={styles.logo}>
-            <span role="img" aria-label="hotel">🏨</span>
-          </div>
+      <header style={styles.header}>
+        <div style={styles.heading}>
+          <span style={styles.logo} role="img" aria-label="hotel">🏨</span>
           <h1 style={styles.title}>Hotel Management</h1>
-          <p style={styles.welcomeText}>
-            Welcome <span style={styles.highlight}>{user && user.email ? user.email : 'User'}</span>
-          </p>
         </div>
-
-        <div style={styles.stats}>
-          <div style={styles.statItem}>
-            <div style={styles.statValue}>{loading ? '...' : roomCount ?? '-'}</div>
-            <div style={styles.statLabel}>Rooms</div>
-          </div>
-          <div style={styles.statItem}>
-            <div style={styles.statValue}>{loading ? '...' : staffCount ?? '-'}</div>
-            <div style={styles.statLabel}>Staff</div>
-          </div>
-          <div style={styles.statItem}>
-            <div style={styles.statValue}>{loading ? '...' : guestCount ?? '-'}</div>
-            <div style={styles.statLabel}>Guests</div>
-          </div>
-        </div>
-
-        <div style={styles.buttonContainer}>
-          <button 
-            onClick={() => navigate('/inventory')} 
-            style={styles.button}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 3H4C2.89543 3 2 3.89543 2 5V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V5C22 3.89543 21.1046 3 20 3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M16 9H8V15H16V9Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            View Inventory
-          </button>
-          <button
-            onClick={() => navigate('/users')}
-            style={styles.button}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M17 21V19C17 17.8954 16.1046 17 15 17H9C7.89543 17 7 17.8954 7 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="12" cy="11" r="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            User Management
-          </button>
-          <button
-            onClick={() => navigate('/book-room')}
-            style={styles.button}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8 7V3H16V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <rect x="3" y="7" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M16 13H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Book Room
-          </button>
-          <button
-            onClick={() => navigate('/reservations')}
-            style={styles.button}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 6H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M19 6V19C19 20.1046 18.1046 21 17 21H7C5.89543 21 5 20.1046 5 19V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M9 10H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Reservations
-          </button>
-          {user && ['OWNER', 'MANAGER', 'RECEPTIONIST'].includes(user.role) && (
-            <button
-              onClick={() => navigate('/make-payment')}
-              style={styles.button}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 7H20M4 11H20M4 15H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Make Payment
-            </button>
-          )}
-          <button
-            onClick={() => navigate('/add-room')}
-            style={styles.button}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Add Room
-          </button>
+        <div style={styles.userProfile}>
+          <span style={styles.userEmail}>{user?.email || 'User'}</span>
           <button 
             onClick={logout} 
-            style={{...styles.button, ...styles.logoutButton}}
+            style={styles.logoutBtn}
+            aria-label="Sign out"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M16 17L21 12L16 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M21 12H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
             Sign Out
           </button>
         </div>
-      </div>
+      </header>
+
+      <section style={styles.welcomeSection}>
+        <h2 style={styles.welcomeTitle}>Welcome to Hotel Management System</h2>
+        <p style={styles.welcomeText}>
+          Hello, <span style={styles.highlight}>{user && user.email ? user.email.split('@')[0] : 'User'}</span>. 
+          You have access to manage all aspects of the hotel operations.
+        </p>
+      </section>
+
+      <section style={styles.stats}>
+        <div style={styles.statCard} className="card-hover-effect">
+          <div style={{...styles.statIcon, ...styles.roomIcon}}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          </div>
+          {loading ? (
+            <div style={styles.loadingPlaceholder}></div>
+          ) : (
+            <div style={styles.statValue}>{roomCount ?? '-'}</div>
+          )}
+          <div style={styles.statLabel}>Rooms</div>
+        </div>
+
+        <div style={styles.statCard} className="card-hover-effect">
+          <div style={{...styles.statIcon, ...styles.staffIcon}}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          {loading ? (
+            <div style={styles.loadingPlaceholder}></div>
+          ) : (
+            <div style={styles.statValue}>{staffCount ?? '-'}</div>
+          )}
+          <div style={styles.statLabel}>Staff</div>
+        </div>
+
+        <div style={styles.statCard} className="card-hover-effect">
+          <div style={{...styles.statIcon, ...styles.guestIcon}}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          {loading ? (
+            <div style={styles.loadingPlaceholder}></div>
+          ) : (
+            <div style={styles.statValue}>{guestCount ?? '-'}</div>
+          )}
+          <div style={styles.statLabel}>Guests</div>
+        </div>
+      </section>
+
+      <section style={styles.featuresGrid}>
+        {features.map((feature, index) => (
+          <div key={index} style={styles.featureCard} className="card-hover-effect">
+            <div style={styles.featureHeader}>
+              <h3 style={styles.featureTitle}>{feature.title}</h3>
+              <div style={styles.featureIcon}>{feature.icon}</div>
+            </div>
+            <div style={styles.featureBody}>
+              <p style={styles.featureDescription}>{feature.description}</p>
+              <button 
+                onClick={feature.action} 
+                style={styles.featureButton}
+                className="card-hover-effect"
+              >
+                {feature.title}
+              </button>
+            </div>
+          </div>
+        ))}
+      </section>
     </div>
   );
 };

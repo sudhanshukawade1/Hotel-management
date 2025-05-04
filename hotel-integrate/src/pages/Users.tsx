@@ -14,6 +14,8 @@ const Users: React.FC = () => {
   const [editId, setEditId] = useState<number | null>(null);
   const [editEmail, setEditEmail] = useState('');
   const [editRole, setEditRole] = useState<Role>('RECEPTIONIST');
+  const [editPassword, setEditPassword] = useState('');
+  const [showEditPassword, setShowEditPassword] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
   const isOwner = user?.role === 'OWNER';
 
@@ -30,6 +32,7 @@ const Users: React.FC = () => {
     setEditId(u.id);
     setEditEmail(u.email);
     setEditRole(u.role);
+    setEditPassword('');
     setError('');
     setSuccess('');
   };
@@ -38,6 +41,7 @@ const Users: React.FC = () => {
     setEditId(null);
     setEditEmail('');
     setEditRole('RECEPTIONIST');
+    setEditPassword('');
   };
 
   const handleUpdate = async () => {
@@ -45,7 +49,9 @@ const Users: React.FC = () => {
     setError('');
     setSuccess('');
     try {
-      const updated = await updateUser(editId, { email: editEmail, role: editRole }, token, user.role);
+      const updateData: any = { email: editEmail, role: editRole };
+      if (editPassword) updateData.password = editPassword;
+      const updated = await updateUser(editId, updateData, token, user.role);
       setUsers(users => users.map(u => u.id === updated.id ? updated : u));
       setSuccess('User updated successfully');
       cancelEdit();
@@ -241,6 +247,7 @@ const Users: React.FC = () => {
                 <th style={styles.th}>ID</th>
                 <th style={styles.th}>Email</th>
                 <th style={styles.th}>Role</th>
+                <th style={styles.th}>Password</th>
                 <th style={styles.th}>Actions</th>
               </tr>
             </thead>
@@ -273,6 +280,31 @@ const Users: React.FC = () => {
                       <span style={styles.badge(u.role)}>{u.role}</span>
                     )}
                   </td>
+                  {editId === u.id ? (
+                    <td style={styles.td}>
+                      <div style={{ position: 'relative' }}>
+                        <input
+                          type={showEditPassword ? 'text' : 'password'}
+                          value={editPassword}
+                          onChange={e => setEditPassword(e.target.value)}
+                          placeholder="New Password"
+                          style={{ width: '100%', border: `1px solid ${colors.divider}`, borderRadius: '0.3em', padding: spacing.xs, paddingRight: 30 }}
+                        />
+                        <span
+                          onClick={() => setShowEditPassword((prev) => !prev)}
+                          style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: colors.textSecondary }}
+                          tabIndex={0}
+                          aria-label={showEditPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showEditPassword ? (
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19C7 19 2.73 15.11 1 12c.73-1.26 2.1-3.17 4.06-5.06M9.88 9.88A3 3 0 0 1 12 9c1.66 0 3 1.34 3 3 0 .39-.08.76-.22 1.1M6.1 6.1A10.94 10.94 0 0 1 12 5c5 0 9.27 3.89 11 7-1.09 1.88-3.05 4.5-6.1 6.9M1 1l22 22" /></svg>
+                          ) : (
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z" /><circle cx="12" cy="12" r="3" /></svg>
+                          )}
+                        </span>
+                      </div>
+                    </td>
+                  ) : null}
                   <td style={styles.td}>
                     {isOwner && editId !== u.id && (
                       <>
